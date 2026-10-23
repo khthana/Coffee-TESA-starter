@@ -166,6 +166,8 @@ state = api.get("/v1/state").json()
 
 ## LLM gateway (ของผู้จัด)
 
+**ช่วงแข่ง 2–3 ใช้ LLM ได้เฉพาะ gateway นี้** · LLM อื่นทั้ง cloud และโมเดลบนเครื่องตัวเอง (เช่น Ollama) ผิดกติกา ตัดสิทธิ์ทั้งการแข่ง · Ollama บนเครื่องใช้ฝึกได้เฉพาะก่อนวันแข่งหรือนอกช่วงเก็บคะแนน
+
 LLM ของงานพูด API แบบ OpenAI (`/v1/chat/completions`) ใช้ไลบรารี `openai` ได้เลย
 
 | เรื่อง | ค่า |
@@ -190,4 +192,4 @@ r = llm.chat.completions.create(model="event-llm", max_tokens=300, reasoning_eff
 | `TOO_MANY_CONCURRENT` | 429 | ทีมมีคำขอค้างอยู่ 2 คำขอแล้ว รอให้เสร็จก่อน |
 | `RATE_LIMIT` | 429 | เกิน 20 คำขอ/นาที รอตาม header `Retry-After` |
 
-LLM ช้าหรือล่มได้เสมอ: ตั้ง timeout ให้จบก่อนรอบปิด และมีกฎสำรองเมื่อ LLM ไม่ตอบ (starter ทำไว้แล้วใน `llm.py` และ `strategy.py`)
+LLM ช้าหรือล่มได้เสมอ: ตั้ง timeout ให้จบก่อนรอบปิด และมีกฎสำรองเมื่อ LLM ไม่ตอบ (starter ทำไว้แล้วใน `llm.py` และ `strategy.py`) · gateway ล่มให้เล่นต่อด้วยกฎ ห้ามสลับไป LLM อื่น

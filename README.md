@@ -13,7 +13,7 @@ cp .env.example .env                                # แล้วใส่ MARK
 ```
 
 - `TEAM_KEY` ใช้ key ของทีม (sandbox กับวันแข่งเป็นคนละ key)
-- LLM: ช่วงงานใช้ **LLM gateway** ของผู้จัด (`LLM_BASE_URL`, `LLM_API_KEY` ตามที่แจก) — ถ้าจะลองบนโน้ตบุ๊กตัวเองใช้ Ollama: `ollama pull qwen3.5:4b` แล้วตั้ง `LLM_BASE_URL=http://localhost:11434/v1`
+- LLM: ช่วงงานใช้ **LLM gateway** ของผู้จัด (`LLM_BASE_URL`, `LLM_API_KEY` ตามที่แจก) — **ช่วงแข่ง 2–3 ใช้ได้เฉพาะ gateway** LLM อื่น (cloud หรือ Ollama บนเครื่องตัวเอง) ผิดกติกา ตัดสิทธิ์ · ถ้า gateway ล่ม starter เล่นต่อด้วย rule เอง · ก่อนวันแข่ง/นอกช่วงเก็บคะแนน ฝึกกับ Ollama บนโน้ตบุ๊กได้: `ollama pull qwen3.5:4b` แล้วตั้ง `LLM_BASE_URL=http://localhost:11434/v1`
 - `USE_LLM=0` = ใช้แต่ rule ไม่เรียก LLM เลย
 
 ## agent ทำอะไรบ้าง
@@ -43,6 +43,7 @@ cp .env.example .env                                # แล้วใส่ MARK
 | `memory.py` | จำผลรอบก่อนๆ (`logs/memory-*.json`) สรุปให้ LLM |
 | `llm.py` | เรียก LLM แบบ OpenAI-compatible, JSON schema, ไม่ throw (คืน `None` เมื่อพลาด) |
 | `market.py` | client ของตลาด: retry, รอเมื่อเจอ 429, แปลง error |
+| `pack.py` | zip โฟลเดอร์นี้ส่งกรรมการตรวจ (ดูหัวข้อ "ส่งโค้ดให้กรรมการ") |
 | `logs/decisions.jsonl` | ทุกการตัดสินใจ: offer ที่ส่ง, มาจาก LLM หรือ rule, เหตุผลของ LLM, error |
 | `คู่มือ-API.md` | คู่มือ API ตลาดและ LLM gateway ภาษาไทย พร้อมตาราง error code |
 
@@ -56,16 +57,29 @@ cp .env.example .env                                # แล้วใส่ MARK
 
 ## ความเก่งของ starter (ยังไม่แก้อะไร)
 
-จำลอง 30 เกม 40 ทีม (ไม่ใช้ LLM): PR ~0.90 อันดับเฉลี่ย ~19/40 — ชนะบอตสุ่ม/บอตตัดราคา แต่แพ้บอตที่ปรับราคาตามผล (~0.94)
+จำลอง 30 เกม (วัดตอนตลาดมี 40 ทีม, ไม่ใช้ LLM): PR ~0.90 อยู่กลางตาราง — ชนะบอตสุ่ม/บอตตัดราคา แต่แพ้บอตที่ปรับราคาตามผล (~0.94)
 ใน sandbox กับ qwen3.5:9b ได้ PR 0.92 (อันดับ 8/20) — ผลต่อเกมแกว่งพอสมควร ลองหลายเกมก่อนสรุป
 
 ## ทำให้เก่งขึ้น (`# TODO` ในโค้ด)
 
 - **markup ต่อ Buyer Type และปรับตามผลรอบก่อน** (`strategy.py` `MARKUP`) — ผู้ซื้อแต่ละประเภทยอมจ่ายไม่เท่ากัน
 - **noise ของ Sample** — ล็อตที่ค่าใกล้ขอบเกรด/สเปก (`appraisal.py`, `spec_ok`)
-- **Market Calendar** — ขายมากขึ้นช่วงเทศกาล น้อยลงช่วงซบเซา (`sell_budget`)
+- **Market Calendar** — ขายมากขึ้นช่วงเทศกาล น้อยลงช่วงใกล้ปิดตลาด (`sell_budget`)
 - **นิสัยของผู้ซื้อแต่ละราย** — สรุปจาก `market_summary` หลายรอบ (`memory.py`)
 - **thinking mode** (`LLM_THINKING=1`) ฉลาดขึ้นแต่ช้ามาก และอาจคิดจน token หมดโดยไม่ตอบ — ถ้าเปิดต้องดูเวลา
+
+## ส่งโค้ดให้กรรมการ (`pack.py`)
+
+ใช้เฉพาะช่วง 2–3 **เมื่อทีมงานเรียกทีมเท่านั้น** ต้องส่งภายใน 10 นาทีหลังตลาดปิด ไม่ส่ง = ไม่ได้รางวัลช่วงนั้น
+
+```bash
+python pack.py --send    # สร้าง handin.zip แล้วส่งให้ตลาด (ใช้ MARKET_URL และ TEAM_KEY ใน .env)
+python pack.py           # สร้าง handin.zip อย่างเดียว แล้วอัปโหลดเองที่หน้า <MARKET_URL>/handin
+```
+
+- **ไม่ใส่**: `.env` (มี key) `.venv` `__pycache__` `.git` ไฟล์ `.zip` และไฟล์ที่ใหญ่เกิน 5 MB
+- **ใส่**: โค้ดทั้งหมดและ `logs/` (กรรมการเทียบ `logs/decisions.jsonl` กับที่ตลาดได้รับ)
+- `TEAM_KEY` ใน `.env` ต้องเป็น key แข่ง · ส่งซ้ำได้ กรรมการใช้ไฟล์ล่าสุดที่ส่งทันเวลา
 
 ## กติกาที่ต้องระวัง
 
