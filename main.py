@@ -83,6 +83,11 @@ def play(api: Market, llm: LLM | None, forever: bool) -> None:
             rid = state["round"]["round_id"]
             acted.add(rid)
             memory.record_results(state["last_results"])
+            if any(o["round_id"] == rid for o in state["my_open_offers"]):
+                # restarted after sending this round: the market already holds our offers, and a new batch
+                # would replace them (capacity_left_kg no longer counts them, so it would offer less)
+                log("round_already_sent", round=rid, n=len(state["my_open_offers"]))
+                continue
             ctx = strategy.Context(rules, info["calendar"], tv, rng, memory, llm, state["seconds_left"] or 999)
             t0 = time.time()
             try:
