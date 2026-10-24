@@ -7,10 +7,21 @@ agent ตั้งต้นที่ **รันได้ทันทีแล�
 ```bash
 python -m venv .venv
 .venv/Scripts/pip install -r requirements.txt      # Mac/Linux: .venv/bin/pip
-cp .env.example .env                                # แล้วใส่ MARKET_URL, TEAM_KEY, LLM_*
+cp .env.example .env                                # Windows: copy .env.example .env · แล้วใส่ MARKET_URL, TEAM_KEY, LLM_*
 .venv/Scripts/python main.py                        # เล่นจนตลาดปิด
 .venv/Scripts/python main.py --forever              # sandbox: เล่นต่อเกมใหม่ไปเรื่อยๆ
 ```
+
+คำสั่งข้างบนใช้ได้ใน Git Bash และ PowerShell · ถ้าใช้ Command Prompt (cmd) เขียน `\` แทน `/` เช่น `.venv\Scripts\pip install -r requirements.txt`
+
+### ถ้าเจอ error ตอนติดตั้ง
+
+| อาการ | สาเหตุ | แก้ |
+|---|---|---|
+| `ERROR: Could not find a version that satisfies the requirement requirements.txt` | ลืม `-r` pip เลยคิดว่า `requirements.txt` เป็นชื่อแพ็กเกจ | `.venv/Scripts/pip install -r requirements.txt` |
+| `No module named 'openai'` หรือ `No module named 'httpx'` | ติดตั้งด้วย `pip` ของเครื่อง แต่รันด้วย `.venv` (หรือกลับกัน) | ติดตั้งและรันด้วยตัวใน `.venv` ทั้งคู่: `.venv/Scripts/pip ...` แล้ว `.venv/Scripts/python main.py` |
+| `'.venv' is not recognized ...` | ใช้ Command Prompt (cmd) กับ `/` | เปลี่ยนเป็น `\` หรือใช้ PowerShell |
+| `KeyError: 'MARKET_URL'` | ยังไม่มีไฟล์ `.env` หรือยังไม่ได้ใส่ค่า | ทำบรรทัด `cp`/`copy` ข้างบน แล้วเปิด `.env` ใส่ค่าที่ทีมงานแจก |
 
 - `TEAM_KEY` ใช้ key ของทีม (sandbox กับวันแข่งเป็นคนละ key)
 - LLM: ช่วงงานใช้ **LLM gateway** ของผู้จัด (`LLM_BASE_URL`, `LLM_API_KEY` ตามที่แจก) — **ช่วงแข่ง 2–3 ใช้ได้เฉพาะ gateway** LLM อื่น (cloud หรือ Ollama บนเครื่องตัวเอง) ผิดกติกา ตัดสิทธิ์ · ถ้า gateway ล่ม starter เล่นต่อด้วย rule เอง · ก่อนวันแข่ง/นอกช่วงเก็บคะแนน ฝึกกับ Ollama บนโน้ตบุ๊กได้: `ollama pull qwen3.5:4b` แล้วตั้ง `LLM_BASE_URL=http://localhost:11434/v1`
