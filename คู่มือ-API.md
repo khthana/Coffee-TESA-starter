@@ -68,7 +68,7 @@ state = api.get("/v1/state").json()
      "sample": {"defect_pct": 5.56, "moisture_pct": 12.95, "screen": 13}}
   ],
   "rfqs": [
-    {"rfq_id": "R2-03", "buyer": "สยามคอมเมิร์ซ", "buyer_type": "COMMERCIAL", "kg": 600, "bags": 10,
+    {"rfq_id": "R2-03", "buyer": "3 สยามคอมเมิร์ซ", "buyer_type": "COMMERCIAL", "kg": 600, "bags": 10,
      "spec": {"max_defect_pct": 7.0, "max_moisture_pct": 12.5, "min_screen": null}}
   ],
   "my_open_offers": [],
@@ -122,7 +122,7 @@ state = api.get("/v1/state").json()
 {"round_id": "R2", "kind": "real",
  "my_offers": [{"offer_id": "O00042", "rfq_id": "R2-03", "lot_id": "LOT-T05-1", "kg": 120, "price_per_kg": 121.5,
                 "status": "ACCEPTED", "filled_kg": 120}],
- "market_summary": [{"rfq_id": "R2-03", "buyer": "สยามคอมเมิร์ซ", "buyer_type": "COMMERCIAL", "wanted_kg": 600,
+ "market_summary": [{"rfq_id": "R2-03", "buyer": "3 สยามคอมเมิร์ซ", "buyer_type": "COMMERCIAL", "wanted_kg": 600,
                      "bought_kg": 420, "offers": 5, "price_min": 103.86, "price_max": 124.22, "price_avg": 118.18}]}
 ```
 
