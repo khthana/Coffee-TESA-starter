@@ -3,6 +3,7 @@
     python main.py              # play until the market closes
     python main.py --forever    # sandbox: keep playing game after game
 """
+import hashlib
 import json
 import os
 import random
@@ -65,10 +66,12 @@ def play(api: Market, llm: LLM | None, forever: bool) -> None:
             log("state_error", error=str(e))
             time.sleep(3)
             continue
-        lots_key = tuple(sorted(l["lot_id"] for l in state["lots"]))
+        # the sandbox reuses lot ids every game, so the samples are what tell one game from the next
+        lots_key = tuple(sorted((l["lot_id"], json.dumps(l["sample"], sort_keys=True)) for l in state["lots"]))
         if lots_key != game:                        # new game (or sandbox reset): start fresh
             game, acted, tv = lots_key, set(), estimate_lots(rules, state["lots"])
-            memory = Memory(LOGS / f"memory-{state['market']}-{lots_key[0] if lots_key else 'none'}.json")
+            tag = hashlib.sha1(repr(lots_key).encode()).hexdigest()[:8]
+            memory = Memory(LOGS / f"memory-{state['market']}-{tag}.json")
             log("new_game", market=state["market"], lots=len(state["lots"]), tv=tv)
         phase = state["phase"]
 
