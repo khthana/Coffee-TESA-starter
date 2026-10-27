@@ -101,7 +101,7 @@ Answer only JSON matching the schema."""
 SCHEMA = {"type": "object", "required": ["offers", "reason"], "properties": {
     "offers": {"type": "array", "items": {"type": "object", "required": ["candidate", "bags", "markup"], "properties": {
         "candidate": {"type": "integer"}, "bags": {"type": "integer"}, "markup": {"type": "number"}}}},
-    "reason": {"type": "string"}}}
+    "reason": {"type": "string", "maxLength": 300}}}   # short: a long reason can run past max_tokens and cut the JSON
 
 
 def llm_plan(state: dict, ctx: Context, cands: list[dict]) -> list[dict] | None:
